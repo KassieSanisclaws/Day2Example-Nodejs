@@ -1,53 +1,23 @@
-const express = require('express');
-const fs = require('fs');
-
-
+const AlbumList = require("../DummyData/albumList");
 
 module.exports.getAlbumsList = (req, res) => {
-     res.send("Albums List Successful");
+   const albumsList = AlbumList;
 
+   if(albumsList) {
+    res.status(200).json(albumsList);
+   } else {
+    res.status(404).json({message: "Albums not found"});
+   }
 }
 
 
 module.exports.getAlbumByID = (req, res) => {
-    res.send("Albums list by ID");
+   const id = parseInt(req.params.id, 10);
+   const album = AlbumList[id];
+   if (album) {
+     res.status(200).json(album);
+   } else {
+     res.status(404).json({ message: "Album not found" });
+   }
 }
 
-const load_albumsList = (callback) => {
-    fs.readdir('albums', (err, files) => {
-        if(err) {
-            callback(err);
-            return;
-        }
-
-        //Filter only directories:
-        const albums = [];
-        let pending = files.length;
-
-        if(!pending){
-            return callback(null, albums); //no files and returns empty array list
-        }
-
-        files.forEach(file => {
-            fs.start(`albums/${file}`, (err, stats) => {
-                if(err){
-                    callback(err);
-                    return;
-                }
-
-                if(stats.isDirectory()){
-                    albums.push(file);
-                }
-
-                if(!--pending){
-                    callback(null, albums);
-                }
-            });
-        });
-    });
-};
-
-// module.exports = {
-//     load_albumsList
-
-// }
